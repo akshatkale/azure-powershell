@@ -25,6 +25,8 @@
 
         public List<PSIpsecPolicy> IpsecPolicies { get; set; }
 
+        public List<PSTrafficSelectorPolicy> TrafficSelectorPolicies { get; set; }
+
         [Ps1Xml(Label = "Connection Bandwidth", Target = ViewControl.Table)]
         public int ConnectionBandwidth { get; set; }
 

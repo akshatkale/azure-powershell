@@ -402,14 +402,20 @@ function Test-CortexDownloadConfig
 		$vpnConnection = Get-AzVpnConnection -ResourceGroupName $rgName -ParentResourceName $vpnGatewayName -Name $vpnConnectionName
 		Assert-AreEqual $vpnConnectionName $vpnConnection.Name
 		
+		# Create traffic selector policy
+		$trafficSelector = New-AzIpsecTrafficSelectorPolicy -LocalAddressRange ("2.2.2.2/32", "4.4.4.4/32") -RemoteAddressRange ("3.3.3.3/32", "5.5.5.5/32")
+
 		# Create the VpnConnection with site with links
-		$vpnSiteLinkConnection1 = New-AzVpnSiteLinkConnection -Name $vpnLink1ConnectionName -VpnSiteLink $vpnSite2.VpnSiteLinks[0] -ConnectionBandwidth 100
-	    $vpnSiteLinkConnection2 = New-AzVpnSiteLinkConnection -Name $vpnLink2ConnectionName -VpnSiteLink $vpnSite2.VpnSiteLinks[1] -ConnectionBandwidth 10
+		$vpnSiteLinkConnection1 = New-AzVpnSiteLinkConnection -Name $vpnLink1ConnectionName -VpnSiteLink $vpnSite2.VpnSiteLinks[0] -ConnectionBandwidth 100 -TrafficSelectorPolicy ($trafficSelector)
+	    $vpnSiteLinkConnection2 = New-AzVpnSiteLinkConnection -Name $vpnLink2ConnectionName -VpnSiteLink $vpnSite2.VpnSiteLinks[1] -ConnectionBandwidth 10 -TrafficSelectorPolicy ($trafficSelector)
 
 		$createdVpnConnection2 = New-AzVpnConnection -ResourceGroupName $rgName -ParentResourceName $vpnGatewayName -Name $vpnConnection2Name -VpnSite $vpnSite2 -VpnSiteLinkConnection @($vpnSiteLinkConnection1, $vpnSiteLinkConnection2)
 		$vpnConnection2 = Get-AzVpnConnection -ResourceGroupName $rgName -ParentResourceName $vpnGatewayName -Name $vpnConnection2Name
 		Assert-AreEqual $vpnConnection2Name $vpnConnection2.Name
 		Assert-AreEqual 2 $vpnConnection2.VpnLinkConnections.Count
+
+		Assert-AreEqual $trafficSelector.LocalAddressRanges[0] $vpnConnection2.VpnLinkConnections[1].TrafficSelectorPolicies[0].LocalAddressRanges[0]
+		Assert-AreEqual $trafficSelector.RemoteAddressRanges[0] $vpnConnection2.VpnLinkConnections[1].TrafficSelectorPolicies[0].RemoteAddressRanges[0]
 
 		# Download config
 		$storetype = 'Standard_GRS'
