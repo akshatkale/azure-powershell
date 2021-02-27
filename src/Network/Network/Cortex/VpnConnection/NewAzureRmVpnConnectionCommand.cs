@@ -188,6 +188,12 @@ namespace Microsoft.Azure.Commands.Network
             HelpMessage = "Run cmdlet in the background")]
         public SwitchParameter AsJob { get; set; }
 
+        [Parameter(
+             Mandatory = false,
+             ValueFromPipelineByPropertyName = true,
+             HelpMessage = "A list of traffic selector policies.")]
+        public PSTrafficSelectorPolicy[] TrafficSelectorPolicy { get; set; }
+
         public override void Execute()
         {
             base.Execute();
@@ -311,6 +317,11 @@ namespace Microsoft.Azure.Commands.Network
             }
 
             parentVpnGateway.Connections.Add(vpnConnection);
+
+            if (this.TrafficSelectorPolicy != null)
+            {
+                vpnConnection.TrafficSelectorPolicies = this.TrafficSelectorPolicy?.ToList();
+            }
 
             WriteVerbose(string.Format(Properties.Resources.CreatingLongRunningOperationMessage, this.ResourceGroupName, this.Name));
 

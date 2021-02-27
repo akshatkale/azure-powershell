@@ -51,12 +51,6 @@
         public PSIpsecPolicy IpSecPolicy { get; set; }
 
         [Parameter(
-             Mandatory = false,
-             ValueFromPipelineByPropertyName = true,
-             HelpMessage = "A list of traffic selector policies.")]
-        public PSTrafficSelectorPolicy[] TrafficSelectorPolicy { get; set; }
-
-        [Parameter(
         Mandatory = false,
         HelpMessage = "Gateway connection protocol:IKEv1/IKEv2")]
         [ValidateSet(
@@ -121,11 +115,6 @@
             if (!String.IsNullOrEmpty(this.VpnConnectionProtocolType))
             {
                 vpnSiteLinkConnection.VpnConnectionProtocolType = this.VpnConnectionProtocolType;
-            }
-
-            if (this.TrafficSelectorPolicy != null)
-            {
-                vpnSiteLinkConnection.TrafficSelectorPolicies = this.TrafficSelectorPolicy?.ToList();
             }
 
             //// Connection bandwidth
